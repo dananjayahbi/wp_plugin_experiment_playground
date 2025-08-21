@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trans Express API Tester</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Trans Express API Tester</h1>
+        <p>Test all Trans Express delivery service API endpoints easily</p>
+        <button onclick="autoFillAllForms()" class="global-fill-btn">🎭 Auto-Fill ALL Forms</button>
+      </header>
+
+      <!-- Configuration Section -->
+      <section class="config-section">
+        <h2>Configuration</h2>
+        
+        <!-- CORS Warning/Info -->
+        <div id="cors-info" class="cors-info-box">
+          <h3>🚨 CORS Setup Required</h3>
+          <p><strong>The API endpoints may be blocked by CORS policy when accessed directly from the browser.</strong></p>
+          
+          <div class="cors-solutions">
+            <div class="solution-option recommended">
+              <h4>✅ Recommended Solution: Use Local Server</h4>
+              <ol>
+                <li>Open terminal/command prompt in the <code>api-tester</code> folder</li>
+                <li>Run: <code>python server.py</code></li>
+                <li>Open <code>http://localhost:8080</code> in your browser</li>
+                <li>The server will automatically handle CORS issues</li>
+              </ol>
+            </div>
+            
+            <div class="solution-option">
+              <h4>🔧 Alternative: Browser Extension</h4>
+              <p>Install a CORS browser extension like "CORS Unblock" or "Disable CORS" (for testing only)</p>
+            </div>
+            
+            <div class="solution-option">
+              <h4>📱 Alternative: Use Postman</h4>
+              <p>Postman doesn't enforce CORS policies and will work directly with the APIs</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="config-form">
+          <label for="baseUrl">Environment:</label>
+          <select id="baseUrl">
+            <option value="https://portal.transexpress.lk/api">
+              Production (Recommended - Working)
+            </option>
+            <option value="https://dev-transexpress.parallaxtec.com/api">
+              Staging (May be down)
+            </option>
+          </select>
+
+          <label for="authToken">Authorization Token:</label>
+          <input
+            type="password"
+            id="authToken"
+            placeholder="Enter your Bearer token"
+          />
+          
+          <div class="mock-mode-section">
+            <label for="mockMode" class="checkbox-label">
+              <input type="checkbox" id="mockMode" onchange="toggleMockMode()">
+              🎭 Use Mock Data Mode (for testing when APIs are down)
+            </label>
+            <small>Enable this if you can't connect to the real APIs</small>
+          </div>
+
+          <button onclick="saveConfig()">Save Configuration</button>
+          <button onclick="testConnectivity()" class="test-btn" style="background: #4299e1;">Test API Connectivity</button>
+        </div>
+      </section>
+
+      <!-- API Test Sections -->
+      <div class="api-sections">
+        <!-- GET Endpoints Section -->
+        <section class="api-section">
+          <h2>Location Data (GET Endpoints)</h2>
+
+          <div class="endpoint-card">
+            <h3>Get All Provinces</h3>
+            <p>Retrieve all provinces in Sri Lanka</p>
+            <button onclick="testGetProvinces()" class="test-btn">
+              Test Get Provinces
+            </button>
+            <div id="provinces-result" class="result-area"></div>
+          </div>
+
+          <div class="endpoint-card">
+            <h3>Get All Districts</h3>
+            <p>Get districts by province ID</p>
+            <input
+              type="number"
+              id="provinceId"
+              placeholder="Province ID (1-9)"
+              value="1"
+            />
+            <button onclick="testGetDistricts()" class="test-btn">
+              Test Get Districts
+            </button>
+            <div id="districts-result" class="result-area"></div>
+          </div>
+
+          <div class="endpoint-card">
+            <h3>Get All Cities</h3>
+            <p>Get cities by district ID</p>
+            <input
+              type="number"
+              id="districtId"
+              placeholder="District ID"
+              value="8"
+            />
+            <button onclick="testGetCities()" class="test-btn">
+              Test Get Cities
+            </button>
+            <div id="cities-result" class="result-area"></div>
+          </div>
+        </section>
+
+        <!-- Single Order Section -->
+        <section class="api-section">
+          <h2>Single Order Management</h2>
+
+          <div class="endpoint-card">
+            <h3>Add Single Order - Auto Waybill</h3>
+            <p>Create a single order with automatic waybill generation</p>
+            <div class="form-group">
+              <input
+                type="text"
+                id="single-order-no"
+                placeholder="Order Number (optional)"
+              />
+              <input
+                type="text"
+                id="single-customer-name"
+                placeholder="Customer Name"
+                required
+              />
+              <input
+                type="text"
+                id="single-address"
+                placeholder="Customer Address"
+                required
+              />
+              <input
+                type="text"
+                id="single-phone"
+                placeholder="Phone Number (10 digits)"
+                required
+              />
+              <input
+                type="text"
+                id="single-phone2"
+                placeholder="Second Phone (optional)"
+              />
+              <input
+                type="number"
+                id="single-cod"
+                placeholder="COD Amount"
+                required
+              />
+              <input
+                type="text"
+                id="single-city"
+                placeholder="City Name"
+                required
+              />
+              <textarea
+                id="single-description"
+                placeholder="Order Description (optional)"
+              ></textarea>
+              <textarea
+                id="single-note"
+                placeholder="Note (optional)"
+              ></textarea>
+            </div>
+            <button onclick="autoFillSingleOrderForm()" class="add-btn">🎭 Auto-Fill Mock Data</button>
+            <button onclick="testAddSingleOrderAuto()" class="test-btn">
+              Test Add Single Order (Auto)
+            </button>
+            <div id="single-order-auto-result" class="result-area"></div>
+          </div>
+
+          <div class="endpoint-card">
+            <h3>Add Single Order - Manual Waybill</h3>
+            <p>Create a single order with manual waybill</p>
+            <div class="form-group">
+              <input
+                type="text"
+                id="manual-order-no"
+                placeholder="Order Number (optional)"
+              />
+              <input
+                type="text"
+                id="manual-customer-name"
+                placeholder="Customer Name"
+                required
+              />
+              <input
+                type="text"
+                id="manual-address"
+                placeholder="Customer Address"
+                required
+              />
+              <input
+                type="text"
+                id="manual-phone"
+                placeholder="Phone Number (10 digits)"
+                required
+              />
+              <input
+                type="text"
+                id="manual-phone2"
+                placeholder="Second Phone (optional)"
+              />
+              <input
+                type="number"
+                id="manual-cod"
+                placeholder="COD Amount"
+                required
+              />
+              <input
+                type="number"
+                id="manual-city-id"
+                placeholder="City ID"
+                required
+              />
+              <input
+                type="text"
+                id="manual-waybill"
+                placeholder="Waybill ID (8 digits)"
+                required
+              />
+              <textarea
+                id="manual-description"
+                placeholder="Order Description (optional)"
+              ></textarea>
+              <textarea
+                id="manual-note"
+                placeholder="Note (optional)"
+              ></textarea>
+            </div>
+            <button onclick="autoFillSingleManualOrderForm()" class="add-btn">🎭 Auto-Fill Mock Data</button>
+            <button onclick="testAddSingleOrderManual()" class="test-btn">
+              Test Add Single Order (Manual)
+            </button>
+            <div id="single-order-manual-result" class="result-area"></div>
+          </div>
+        </section>
+
+        <!-- Bulk Orders Section -->
+        <section class="api-section">
+          <h2>Bulk Order Management</h2>
+
+          <div class="endpoint-card">
+            <h3>Add Bulk Orders - Auto</h3>
+            <p>Create multiple orders automatically</p>
+            <div class="bulk-orders-container">
+              <div class="bulk-order-form" id="bulk-order-1">
+                <h4>Order 1</h4>
+                <input
+                  type="text"
+                  placeholder="Order ID (optional)"
+                  class="bulk-order-id"
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  class="bulk-customer-name"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Address"
+                  class="bulk-address"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  class="bulk-phone"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Second Phone (optional)"
+                  class="bulk-phone2"
+                />
+                <input
+                  type="number"
+                  placeholder="COD Amount"
+                  class="bulk-cod"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="City Name"
+                  class="bulk-city"
+                  required
+                />
+                <textarea
+                  placeholder="Order Description (optional)"
+                  class="bulk-description"
+                ></textarea>
+                <textarea
+                  placeholder="Remark (optional)"
+                  class="bulk-remark"
+                ></textarea>
+              </div>
+              <div class="bulk-order-form" id="bulk-order-2">
+                <h4>Order 2</h4>
+                <input
+                  type="text"
+                  placeholder="Order ID (optional)"
+                  class="bulk-order-id"
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  class="bulk-customer-name"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Address"
+                  class="bulk-address"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  class="bulk-phone"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Second Phone (optional)"
+                  class="bulk-phone2"
+                />
+                <input
+                  type="number"
+                  placeholder="COD Amount"
+                  class="bulk-cod"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="City Name"
+                  class="bulk-city"
+                  required
+                />
+                <textarea
+                  placeholder="Order Description (optional)"
+                  class="bulk-description"
+                ></textarea>
+                <textarea
+                  placeholder="Remark (optional)"
+                  class="bulk-remark"
+                ></textarea>
+              </div>
+            </div>
+            <button onclick="addBulkOrderForm()" class="add-btn">
+              Add Another Order
+            </button>
+            <button onclick="autoFillBulkOrderForms()" class="add-btn">🎭 Auto-Fill All Orders</button>
+            <button onclick="testAddBulkOrdersAuto()" class="test-btn">
+              Test Add Bulk Orders (Auto)
+            </button>
+            <div id="bulk-orders-auto-result" class="result-area"></div>
+          </div>
+
+          <div class="endpoint-card">
+            <h3>Add Bulk Orders - Manual</h3>
+            <p>Create multiple orders with manual waybill IDs</p>
+            <div class="bulk-manual-orders-container">
+              <div class="bulk-manual-order-form" id="bulk-manual-order-1">
+                <h4>Manual Order 1</h4>
+                <input
+                  type="text"
+                  placeholder="Order ID (optional)"
+                  class="bulk-manual-order-id"
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  class="bulk-manual-customer-name"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Customer Address"
+                  class="bulk-manual-address"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  class="bulk-manual-phone"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Second Phone (optional)"
+                  class="bulk-manual-phone2"
+                />
+                <input
+                  type="number"
+                  placeholder="COD Amount"
+                  class="bulk-manual-cod"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="City ID"
+                  class="bulk-manual-city-id"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Waybill ID (8 digits)"
+                  class="bulk-manual-waybill"
+                  required
+                />
+                <textarea
+                  placeholder="Order Description (optional)"
+                  class="bulk-manual-description"
+                ></textarea>
+                <textarea
+                  placeholder="Remark (optional)"
+                  class="bulk-manual-remark"
+                ></textarea>
+              </div>
+            </div>
+            <button onclick="addBulkManualOrderForm()" class="add-btn">
+              Add Another Manual Order
+            </button>
+            <button onclick="autoFillBulkManualOrderForms()" class="add-btn">🎭 Auto-Fill All Manual Orders</button>
+            <button onclick="testAddBulkOrdersManual()" class="test-btn">
+              Test Add Bulk Orders (Manual)
+            </button>
+            <div id="bulk-orders-manual-result" class="result-area"></div>
+          </div>
+        </section>
+
+        <!-- Order Tracking Section -->
+        <section class="api-section">
+          <h2>Order Tracking</h2>
+
+          <div class="endpoint-card">
+            <h3>Track Single Order</h3>
+            <p>Track an order using waybill ID</p>
+            <input
+              type="text"
+              id="tracking-waybill"
+              placeholder="Waybill ID (8 digits)"
+              required
+            />
+            <button onclick="autoFillTrackingForm()" class="add-btn">🎭 Auto-Fill</button>
+            <button onclick="testTrackOrder()" class="test-btn">
+              Test Track Order
+            </button>
+            <div id="tracking-result" class="result-area"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Global Results Section -->
+      <section class="global-results">
+        <h2>Global Test Results</h2>
+        <div id="global-results" class="result-area"></div>
+        <button onclick="clearAllResults()" class="clear-btn">
+          Clear All Results
+        </button>
+      </section>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api-calls.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
